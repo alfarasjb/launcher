@@ -13,6 +13,7 @@ CRootLauncher     ExtDialog;
 int OnInit()
   {
 //---
+   ExtDialog.Init(); 
    if (!ExtDialog.Create(0, "Launcher", 0, WINDOW_X, WINDOW_Y, WINDOW_X2, WINDOW_Y2)) return INIT_FAILED; 
    ExtDialog.Run(); 
 //---

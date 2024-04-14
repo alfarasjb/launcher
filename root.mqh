@@ -19,6 +19,8 @@ class CRootLauncher : public CAppDialog{
       CRootLauncher();
       ~CRootLauncher();
       
+               void     Init(); 
+      
                CLabel   template_lbl, symbols_lbl; 
                CButton  m_run_button, m_reload_button, m_clear_button; 
                
@@ -55,8 +57,7 @@ class CRootLauncher : public CAppDialog{
 
 
 CRootLauncher::CRootLauncher(void) {
-   TEMPLATE_PATH  = StringFormat("MQL4\\%s", InpTemplatePath); 
-   SYMBOLS_PATH   = StringFormat("launcher\\%s\\symbols.ini", InpSymbolsPath);
+   Init(); 
 }
 
 CRootLauncher::~CRootLauncher(void) {}
@@ -70,6 +71,13 @@ bool        CRootLauncher::Create(const long chart,const string name,const int s
    if (!ButtonCreate(m_clear_button, "Clear", 3)) return false; 
    
    return true; 
+}
+
+void        CRootLauncher::Init(void) {
+   TEMPLATE_PATH  = StringFormat("MQL4\\%s", InpTemplatePath); 
+   SYMBOLS_PATH   = StringFormat("launcher\\%s\\symbols.ini", InpSymbolsPath);
+   Clear(SYMBOLS);
+   Clear(EXTERNAL_CHARTS);
 }
 
 template <typename T>
@@ -169,7 +177,16 @@ bool        CRootLauncher::LoadCharts(void) {
       PrintFormat("Initializing: %s", symbol);
       
       long id  = ChartOpen(symbol, InpChartTimeframe); 
-      long chart_id  = ChartApplyTemplate(id, "\\"+InpTemplatePath);
+      string file_path;
+      switch (InpTemplateSrc) {
+         case MODE_MQL_DIRECTORY:
+             file_path  = "\\"+InpTemplatePath; 
+             break;
+         case MODE_EA_DIRECTORY:
+            file_path   = InpTemplatePath;
+            break; 
+      }
+      long chart_id  = ChartApplyTemplate(id, file_path);
       if (!chart_id) {
          PrintFormat("Failed to apply template on %s, ID: %s, Path: %s", symbol, (string)id, InpTemplatePath); 
          //ChartClose(id);
@@ -217,5 +234,6 @@ bool        CRootLauncher::ClearCharts(void) {
       }
    }
    Clear(EXTERNAL_CHARTS); 
+   Clear(SYMBOLS);
    return true; 
 }
